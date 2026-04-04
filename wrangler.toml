@@ -1,0 +1,17 @@
+# Cloudflare Workers 配置文件
+# 使用 wrangler CLI 部署时的配置
+
+name = "openai-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# 环境变量配置示例（实际部署时在 Dashboard 或使用 wrangler secret 配置）
+# [vars]
+# API_KEY = "your-secret-api-key-here"
+# PROVIDERS = '{"deepseek":{"baseURL":"https://api.deepseek.com/v1","apiKey":"DEEPSEEK_API_KEY","models":["deepseek-chat","deepseek-coder"]}}'
+
+# 使用 wrangler secret 命令配置敏感信息：
+# wrangler secret put API_KEY
+# wrangler secret put DEEPSEEK_API_KEY
+# wrangler secret put ZHIPU_API_KEY
+# wrangler secret put OPENAI_API_KEY

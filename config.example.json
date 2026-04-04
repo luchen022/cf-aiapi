@@ -1,0 +1,58 @@
+{
+  "deepseek": {
+    "baseURL": "https://api.deepseek.com/v1",
+    "apiKey": "DEEPSEEK_API_KEY",
+    "models": [
+      "deepseek-chat",
+      "deepseek-coder"
+    ]
+  },
+  "zhipu": {
+    "baseURL": "https://open.bigmodel.cn/api/paas/v4",
+    "apiKey": "ZHIPU_API_KEY",
+    "models": [
+      "glm-4",
+      "glm-4-plus",
+      "glm-4-flash",
+      "glm-4-air"
+    ]
+  },
+  "openai": {
+    "baseURL": "https://api.openai.com/v1",
+    "apiKey": "OPENAI_API_KEY",
+    "models": [
+      "gpt-4",
+      "gpt-4-turbo",
+      "gpt-3.5-turbo",
+      "text-embedding-3-small",
+      "text-embedding-3-large"
+    ]
+  },
+  "moonshot": {
+    "baseURL": "https://api.moonshot.cn/v1",
+    "apiKey": "MOONSHOT_API_KEY",
+    "models": [
+      "moonshot-v1-8k",
+      "moonshot-v1-32k",
+      "moonshot-v1-128k"
+    ]
+  },
+  "qwen": {
+    "baseURL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "apiKey": "QWEN_API_KEY",
+    "models": [
+      "qwen-turbo",
+      "qwen-plus",
+      "qwen-max"
+    ]
+  },
+  "siliconflow": {
+    "baseURL": "https://api.siliconflow.cn/v1",
+    "apiKey": "SILICONFLOW_API_KEY",
+    "models": [
+      "deepseek-ai/DeepSeek-V2.5",
+      "Qwen/Qwen2.5-7B-Instruct",
+      "THUDM/glm-4-9b-chat"
+    ]
+  }
+}

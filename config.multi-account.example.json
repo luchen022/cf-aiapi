@@ -1,0 +1,38 @@
+{
+  "deepseek": {
+    "baseURL": "https://api.deepseek.com/v1",
+    "apiKey": [
+      "DEEPSEEK_API_KEY_1",
+      "DEEPSEEK_API_KEY_2",
+      "DEEPSEEK_API_KEY_3"
+    ],
+    "models": [
+      "deepseek-chat",
+      "deepseek-coder"
+    ]
+  },
+  "zhipu": {
+    "baseURL": "https://open.bigmodel.cn/api/paas/v4",
+    "apiKey": [
+      "ZHIPU_API_KEY_1",
+      "ZHIPU_API_KEY_2"
+    ],
+    "models": [
+      "glm-4",
+      "glm-4-plus",
+      "glm-4-flash"
+    ]
+  },
+  "openai": {
+    "baseURL": [
+      "https://api.openai.com/v1",
+      "https://api.openai-proxy.com/v1"
+    ],
+    "apiKey": "OPENAI_API_KEY",
+    "models": [
+      "gpt-4",
+      "gpt-4-turbo",
+      "gpt-3.5-turbo"
+    ]
+  }
+}
