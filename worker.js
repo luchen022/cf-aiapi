@@ -219,8 +219,9 @@ function getModelConfig(model, env) {
     return null;
   }
 
-  // 如果有多个配置，随机选择一个（负载均衡）
-  const index = Math.floor(Math.random() * configs.length);
+  // 如果有多个配置，使用基于时间的轮询（每秒切换）
+  // 确保一分钟内均匀分配到各个账号
+  const index = Math.floor(Date.now() / 1000) % configs.length;
   return configs[index];
 }
 

@@ -5,6 +5,12 @@ name = "openai-proxy"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
+# 限制 Workers 运行区域（减少 IP 变化，避免被 AI 厂商风控）
+# 可选区域：WNAM (美西), ENAM (美东), WEUR (西欧), EEUR (东欧), APAC (亚太)
+# 推荐使用 APAC（亚太）- 包含新加坡、香港、东京等节点
+[placement]
+mode = "smart"
+
 # 环境变量配置示例（实际部署时在 Dashboard 或使用 wrangler secret 配置）
 # [vars]
 # API_KEY = "your-secret-api-key-here"
