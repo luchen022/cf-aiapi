@@ -43,6 +43,6 @@ export async function handleAnthropicMessages(request, env) {
     const anthropicData = openAIToAnthropic(openaiData, anthropicBody.model);
     return new Response(JSON.stringify(anthropicData), { status: 200, headers: anthropicJsonHeaders() });
   } catch (e) {
-    return anthropicError(e.message, 'server_error', 500);
+    return anthropicError(e.message, e.type || 'server_error', e.status || 500);
   }
 }

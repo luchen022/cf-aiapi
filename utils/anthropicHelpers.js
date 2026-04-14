@@ -1,5 +1,12 @@
 /** Helper functions for Anthropic ↔ OpenAI conversion */
 
+function invalidAnthropicRequest(message) {
+  const error = new Error(message);
+  error.status = 400;
+  error.type = 'invalid_request_error';
+  return error;
+}
+
 export function anthropicToOpenAI(body) {
   const messages = [];
   if (body.system) {
@@ -69,19 +76,92 @@ function convertAnthropicMessage(msg) {
       return result;
     }
     if (role === 'user') {
-      const toolResults = content.filter(b => b.type === 'tool_result');
-      const textBlocks = content.filter(b => b.type === 'text');
-      if (toolResults.length > 0) {
-        return toolResults.map(tr => ({
-          role: 'tool',
-          tool_call_id: tr.tool_use_id,
-          content: Array.isArray(tr.content) ? tr.content.filter(b => b.type === 'text').map(b => b.text).join('') : (tr.content || '')
-        }));
+      const messages = [];
+      let userParts = [];
+
+      const flushUserParts = () => {
+        if (userParts.length === 0) return;
+        if (userParts.length === 1 && userParts[0].type === 'text') {
+          messages.push({ role: 'user', content: userParts[0].text });
+        } else {
+          messages.push({ role: 'user', content: userParts });
+        }
+        userParts = [];
+      };
+
+      for (const block of content) {
+        if (block.type === 'tool_result') {
+          flushUserParts();
+          messages.push({
+            role: 'tool',
+            tool_call_id: block.tool_use_id,
+            content: stringifyToolResultContent(block.content)
+          });
+          continue;
+        }
+
+        userParts.push(convertAnthropicUserContentBlock(block));
       }
-      return { role: 'user', content: textBlocks.map(b => b.text).join('') };
+
+      flushUserParts();
+      return messages;
     }
   }
   return { role, content: String(content) };
+}
+
+function convertAnthropicUserContentBlock(block) {
+  if (block.type === 'text') {
+    return { type: 'text', text: block.text || '' };
+  }
+
+  if (block.type === 'image') {
+    return {
+      type: 'image_url',
+      image_url: {
+        url: resolveAnthropicImageURL(block.source)
+      }
+    };
+  }
+
+  throw invalidAnthropicRequest(`Unsupported Anthropic content block type: ${block.type}`);
+}
+
+function resolveAnthropicImageURL(source) {
+  if (!source || typeof source !== 'object') {
+    throw invalidAnthropicRequest('Invalid Anthropic image source');
+  }
+
+  if (source.type === 'base64') {
+    if (!source.media_type || !source.data) {
+      throw invalidAnthropicRequest('Anthropic base64 image source requires media_type and data');
+    }
+    return `data:${source.media_type};base64,${source.data}`;
+  }
+
+  if (source.type === 'url') {
+    if (!source.url) {
+      throw invalidAnthropicRequest('Anthropic url image source requires url');
+    }
+    return source.url;
+  }
+
+  throw invalidAnthropicRequest(`Unsupported Anthropic image source type: ${source.type}`);
+}
+
+function stringifyToolResultContent(content) {
+  if (Array.isArray(content)) {
+    return content
+      .filter(block => block.type === 'text')
+      .map(block => block.text)
+      .join('');
+  }
+
+  if (content == null) {
+    return '';
+  }
+
+  return typeof content === 'string' ? content : JSON.stringify(content);
 }
 
 export function openAIToAnthropic(openaiResp, model) {
