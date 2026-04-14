@@ -6,6 +6,7 @@
 
 - ✅ 完全兼容 OpenAI API 格式
 - ✅ 支持 `/v1/models`、`/v1/chat/completions`、`/v1/embeddings` 接口
+- ✅ 支持图片输入（base64 编码或 URL 格式）
 - ✅ 支持流式响应（SSE）
 - ✅ 支持跨域（CORS）
 - ✅ 统一鉴权管理
@@ -173,10 +174,38 @@ curl https://your-worker.workers.dev/v1/chat/completions \
   }'
 ```
 
-### 文本嵌入
+### 对话补全（带图片输入）
 
 ```bash
 curl https://your-worker.workers.dev/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-secret-api-key-here" \
+  -d '{
+    "model": "deepseek-chat",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            }
+          },
+          {
+            "type": "text",
+            "text": "这张图片里有什么？"
+          }
+        ]
+      }
+    ]
+  }'
+```
+
+### 文本嵌入
+
+```bash
+curl https://your-worker.workers.dev/v1/embeddings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-secret-api-key-here" \
   -d '{
@@ -188,6 +217,8 @@ curl https://your-worker.workers.dev/v1/chat/completions \
 ## 客户端集成
 
 ### Python (OpenAI SDK)
+
+#### 基础对话
 
 ```python
 from openai import OpenAI
@@ -201,6 +232,51 @@ response = client.chat.completions.create(
     model="deepseek-chat",
     messages=[
         {"role": "user", "content": "你好"}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+#### 带图片输入的对话
+
+```python
+import base64
+from openai import OpenAI
+
+# 读取并编码图片
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+# 初始化客户端
+client = OpenAI(
+    api_key="your-secret-api-key-here",
+    base_url="https://your-worker.workers.dev/v1"
+)
+
+# 编码图片
+image_base64 = encode_image("image.png")
+
+# 发送请求
+response = client.chat.completions.create(
+    model="deepseek-chat",  # 确保模型支持视觉功能
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{image_base64}"
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "这张图片里有什么？"
+                }
+            ]
+        }
     ]
 )
 
@@ -295,6 +371,11 @@ ZHIPU_API_KEY=xxxxx.xxxxx
    - 提高并发能力（绕过单账号限流）
    - 增加可用性（某个账号失败时还有其他账号）
    - 分散成本（多个账号分摊费用）
+10. 图片输入功能：
+    - 支持 base64 编码格式：`data:image/png;base64,{base64_string}`
+    - 支持图片 URL 格式（如果上游支持）
+    - 需要使用支持视觉功能的模型（如 GPT-4V、DeepSeek-VL 等）
+    - 图片大小限制取决于上游厂商的限制
 
 ## 限制 Workers 运行区域（避免 IP 频繁变化）
 
