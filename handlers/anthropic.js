@@ -1,4 +1,5 @@
 import { getModelConfig } from "../providers/parser.js";
+import { proxyUpstreamResponse } from "../utils/response.js";
 import {
   anthropicToOpenAI,
   openAIToAnthropic,
@@ -30,9 +31,8 @@ export async function handleAnthropicMessages(request, env) {
       },
       body: JSON.stringify(openaiBody)
     });
-    if (!upstreamResponse.ok && !isStream) {
-      const errText = await upstreamResponse.text();
-      return anthropicError(`Upstream error: ${errText}`, 'api_error', upstreamResponse.status);
+    if (!upstreamResponse.ok) {
+      return proxyUpstreamResponse(upstreamResponse);
     }
     if (isStream) {
       const { readable, writable } = new TransformStream();

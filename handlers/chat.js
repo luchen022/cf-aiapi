@@ -1,4 +1,4 @@
-import { jsonResponse } from "../utils/response.js";
+import { jsonResponse, proxyUpstreamResponse } from "../utils/response.js";
 import { getModelConfig } from "../providers/parser.js";
 
 export async function handleChatCompletions(request, env) {
@@ -21,21 +21,12 @@ export async function handleChatCompletions(request, env) {
       },
       body: JSON.stringify(body)
     });
+
     if (body.stream) {
-      return new Response(upstreamResponse.body, {
-        status: upstreamResponse.status,
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "*"
-        }
-      });
+      return proxyUpstreamResponse(upstreamResponse);
     }
-    const data = await upstreamResponse.json();
-    return jsonResponse(data, upstreamResponse.status);
+
+    return proxyUpstreamResponse(upstreamResponse);
   } catch (e) {
     return jsonResponse({ error: { message: e.message, type: "server_error" } }, 500);
   }

@@ -1,4 +1,4 @@
-import { jsonResponse } from "../utils/response.js";
+import { jsonResponse, proxyUpstreamResponse } from "../utils/response.js";
 import { getModelConfig } from "../providers/parser.js";
 
 export async function handleEmbeddings(request, env) {
@@ -21,8 +21,8 @@ export async function handleEmbeddings(request, env) {
       },
       body: JSON.stringify(body)
     });
-    const data = await upstreamResponse.json();
-    return jsonResponse(data, upstreamResponse.status);
+
+    return proxyUpstreamResponse(upstreamResponse);
   } catch (e) {
     return jsonResponse({ error: { message: e.message, type: "server_error" } }, 500);
   }
